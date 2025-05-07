@@ -28,17 +28,21 @@ EXCEL_FILE = "pisi3basededados.xlsx"
 
 # TELA INICIAL
 if menu == "Início":
-    st.title("📱 PhoneDex - Pokedex de Smartphones")
+
+    # Título e descrição
     st.markdown("""
-        <div style='text-align: justify; font-size: 18px'>
-        Bem-vindo ao <strong>PhoneDex</strong>, uma plataforma que organiza e apresenta dados sobre smartphones de forma inteligente.<br><br>
-        Aqui você poderá:
-        <ul>
-            <li>📊 Analisar a evolução dos preços por marca e ano</li>
-            <li>📈 Acompanhar tendências do mercado de celulares</li>
-            <li>📱 Explorar comparações entre modelos, acompanhar lançamentos e salvar favoritos <em>(em breve)</em></li>
-        </ul>
-        Navegue pelo menu lateral para acessar os recursos disponíveis no momento.
+        <h1 style='text-align: center;'>📱 PhoneDex - Pokedex de Smartphones</h1>
+        <p style='text-align: center; font-size: 18px'>
+            Bem-vindo ao <strong>PhoneDex</strong>, uma plataforma que organiza e apresenta dados sobre smartphones de forma inteligente.
+        </p>
+        <div style='margin-top: 30px; font-size: 17px;'>
+            Aqui você poderá:
+            <ul>
+                <li>📊 Analisar a evolução dos preços por marca e ano</li>
+                <li>📈 Acompanhar tendências do mercado de celulares</li>
+                <li>📱 Explorar comparações entre modelos, acompanhar lançamentos e salvar favoritos <em>(em breve)</em></li>
+            </ul>
+            <p>Navegue pelo menu lateral para acessar os recursos disponíveis no momento.</p>
         </div>
     """, unsafe_allow_html=True)
 
