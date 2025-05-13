@@ -62,14 +62,32 @@ elif menu == "Análise Exploratória":
         df['Bateria (mAh)'] = df['Battery Capacity'].str.replace("mAh", "").str.replace(",", "").astype(float)
 
         st.subheader("💲 Evolução Média dos Preços por Marca")
-        media_preco = df.groupby(['Marca', 'Ano'])['Preço (R$)'].mean().reset_index()
+        marcas_disponiveis = sorted(df['Marca'].dropna().unique())
+
+        st.markdown("**Selecione as marcas que deseja visualizar:**")
+        col1, col2, col3 = st.columns(3)
+        marcas_selecionadas = []
+        for i, marca in enumerate(marcas_disponiveis):
+            with [col1, col2, col3][i % 3]:
+                if st.checkbox(marca, value=True, key=f"preco_{marca}"):
+                    marcas_selecionadas.append(marca)
+
+        media_preco = df[df['Marca'].isin(marcas_selecionadas)].groupby(['Marca', 'Ano'])['Preço (R$)'].mean().reset_index()
         fig1 = px.line(media_preco, x='Ano', y='Preço (R$)', color='Marca', markers=True,
                        title="Preço Médio (R$) por Marca ao Longo dos Anos")
         fig1.update_traces(line=dict(width=3))
         st.plotly_chart(fig1, use_container_width=True)
 
         st.subheader("📈 Evolução da Capacidade Média de Bateria por Marca")
-        media_bateria = df.groupby(['Marca', 'Ano'])['Bateria (mAh)'].mean().reset_index()
+        st.markdown("**Selecione as marcas que deseja visualizar:**")
+        col4, col5, col6 = st.columns(3)
+        marcas_bateria_selecionadas = []
+        for i, marca in enumerate(marcas_disponiveis):
+            with [col4, col5, col6][i % 3]:
+                if st.checkbox(marca, value=True, key=f"bateria_{marca}"):
+                    marcas_bateria_selecionadas.append(marca)
+
+        media_bateria = df[df['Marca'].isin(marcas_bateria_selecionadas)].groupby(['Marca', 'Ano'])['Bateria (mAh)'].mean().reset_index()
         fig_bateria = px.line(media_bateria, x='Ano', y='Bateria (mAh)', color='Marca', markers=True,
                               title="📈 Bateria Média (mAh) por Marca e Ano")
         fig_bateria.update_traces(line=dict(width=2))
@@ -84,8 +102,8 @@ elif menu == "Análise Exploratória":
 
         st.subheader("📈 Variação Percentual do Preço Inicial ao Final (por Marca)")
         variacoes = []
-        for marca in media_preco['Marca'].unique():
-            dados_marca = media_preco[media_preco['Marca'] == marca].sort_values('Ano')
+        for marca in df['Marca'].dropna().unique():
+            dados_marca = df[df['Marca'] == marca].groupby('Ano')['Preço (R$)'].mean().reset_index().sort_values('Ano')
             if len(dados_marca) > 1:
                 preco_inicio = dados_marca.iloc[0]['Preço (R$)']
                 preco_fim = dados_marca.iloc[-1]['Preço (R$)']
@@ -125,11 +143,10 @@ elif menu == "Análise Exploratória":
                       title='Capacidade de Bateria por Marca')
         st.plotly_chart(fig5, use_container_width=True)
 
-
-
-
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
+
+
 
 # =========================
 # FILTROS E COMPARAÇÕES COM MELHORIAS
