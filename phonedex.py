@@ -24,7 +24,7 @@ st.markdown("""
 menu = st.sidebar.selectbox("📂 Menu", ["Início", "Análise Exploratória", "Filtros e Comparações"])
 
 # Nome do arquivo
-EXCEL_FILE = "pisi3basededados.xlsx"
+EXCEL_FILE = "datasets/pisi3basededados.xlsx"
 
 # =========================
 # INÍCIO
