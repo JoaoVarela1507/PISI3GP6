@@ -2,6 +2,29 @@ import streamlit as st
 
 EXCEL_FILE = "datasets/pisi3basededados.xlsx"
 
+# Dados do Índice Big Mac para correção de inflação (aproximados)
+BIG_MAC_INDEX = {
+    2010: 3.71, 2011: 4.07, 2012: 4.33, 2013: 4.56, 2014: 4.80,
+    2015: 4.79, 2016: 5.04, 2017: 5.30, 2018: 5.51, 2019: 5.74,
+    2020: 5.71, 2021: 5.81, 2022: 5.15, 2023: 5.58, 2024: 5.69
+}
+
+def corrigir_inflacao(preco, ano_origem, ano_base=2024):
+    """Corrige inflação usando o índice Big Mac"""
+    if ano_origem in BIG_MAC_INDEX and ano_base in BIG_MAC_INDEX:
+        fator_correcao = BIG_MAC_INDEX[ano_base] / BIG_MAC_INDEX[ano_origem]
+        return preco * fator_correcao
+    return preco
+
+def classificar_por_faixa(preco_corrigido):
+    """Classifica smartphones por faixa de preço"""
+    if preco_corrigido <= 300:
+        return "Low-End"
+    elif preco_corrigido <= 700:
+        return "Mid-Range"
+    else:
+        return "High-End"
+
 # Configuração da página
 st.set_page_config(page_title="PhoneDex", layout="wide")
 
