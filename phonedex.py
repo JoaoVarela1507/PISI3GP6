@@ -48,7 +48,7 @@ def classificar_por_faixa(preco_corrigido):
 menu = st.sidebar.selectbox("📂 Menu", ["Início", "Análise Exploratória", "Análise por Faixas", "Filtros e Comparações"])
 
 # Nome do arquivo
-EXCEL_FILE = "pisi3basededados.xlsx"
+EXCEL_FILE = "datasets/pisi3basededados.xlsx"
 
 # =========================
 # INÍCIO
