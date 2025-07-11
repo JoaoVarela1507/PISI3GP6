@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 # Configuração da página
 st.set_page_config(page_title="Análise PhoneDex", layout="wide")
@@ -21,7 +25,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Menu lateral
-menu = st.sidebar.selectbox("📂 Menu", ["Início", "Análise Exploratória", "Filtros e Comparações"])
+menu = st.sidebar.selectbox("📂 Menu", ["Início", "Análise Exploratória", "Filtros e Comparações", "Clusterização"])
 
 # Nome do arquivo
 EXCEL_FILE = "pisi3basededados.xlsx"
@@ -271,4 +275,48 @@ elif menu == "Filtros e Comparações":
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
 # =========================
+# =========================
+# 🔍 CLUSTERIZAÇÃO
+# =========================
+elif menu == "Clusterização":
+    st.title("🔍 Análise e Clusterização de Smartphones")
+    st.info("💡 Esta seção utiliza os mesmos dados do banco principal do PhoneDex (sem necessidade de upload).")
+
+    try:
+        EXCEL_FILE = "datasets/pisi3basededados.xlsx" # garante que a variável exista
+        cotacao_dolar = 5.68
+
+        df = pd.read_excel(EXCEL_FILE)
+        df.columns = df.columns.str.strip()
+
+        df["Preço (USD)"] = (
+            df["Launched Price (USA)"]
+            .astype(str)
+            .str.replace("USD", "", regex=False)
+            .str.replace(",", "", regex=False)
+            .astype(float)
+        )
+        df["Preço (R$)"] = df["Preço (USD)"] * cotacao_dolar
+        df["Ano"] = df["Launched Year"]
+        df["Marca"] = df["Company Name"]
+        df["Sistema Operacional"] = df["Sistema Operacional"].astype(str).str.strip()
+        df["Sistema Operacional (Binário)"] = np.where(
+            df["Sistema Operacional"].str.lower().str.contains("android"), 0, 1
+        ).astype(int)
+
+        st.subheader("📈 Distribuição dos Preços em R$")
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sns.histplot(df["Preço (R$)"], bins=30, kde=True, ax=ax)
+        ax.set_title("Distribuição de Preços em Reais")
+        st.pyplot(fig)
+
+        st.subheader("📋 Amostra dos Dados")
+        st.dataframe(df[[
+            'Model Name', 'Marca', 'Preço (R$)', 'Ano', 'Sistema Operacional'
+        ]].head())
+
+        st.markdown("🚧 *Análises de clusterização serão adicionadas em breve com agrupamentos automáticos por características.*")
+
+    except Exception as e:
+        st.error(f"Erro ao carregar os dados: {e}")
 
