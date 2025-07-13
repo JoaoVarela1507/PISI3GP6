@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Configuração da página
 st.set_page_config(page_title="Análise PhoneDex", layout="wide")
@@ -45,7 +48,11 @@ def classificar_por_faixa(preco_corrigido):
         return "High-End"
 
 # Menu lateral
-menu = st.sidebar.selectbox("📂 Menu", ["Início", "Análise Exploratória", "Análise por Faixas", "Filtros e Comparações"])
+menu = st.sidebar.selectbox("📂 Menu", ["Início", "Análise Exploratória", 
+                                       "Análise por Faixas", 
+                                       "Filtros e Comparações",
+                                       "Bateria por Faixa",
+                                       "Clusterização"])
 
 # Nome do arquivo
 EXCEL_FILE = "datasets/pisi3basededados.xlsx"
@@ -453,3 +460,83 @@ elif menu == "Filtros e Comparações":
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
 # =========================
+# 📈 BATERIA POR FAIXA
+# =========================
+elif menu == "Bateria por Faixa":
+    st.title("📈 Evolução da Capacidade Média de Bateria por Faixa de Preço")
+    st.info("💡 Utiliza preços corrigidos pela inflação para classificar os smartphones em faixas.")
+
+    try:
+        df = pd.read_excel(EXCEL_FILE)
+        df.columns = df.columns.str.strip()
+        df['Preço (USD)'] = df['Launched Price (USA)'].str.replace("USD", "").str.replace(",", "").astype(float)
+        df['Ano'] = df['Launched Year']
+        df['Bateria (mAh)'] = df['Battery Capacity'].str.replace("mAh", "").str.replace(",", "").astype(float)
+
+        cotacao_dolar = 5.68
+        df['Preço Corrigido (USD)'] = df.apply(lambda row: corrigir_inflacao(row['Preço (USD)'], row['Ano']), axis=1)
+        df['Faixa'] = df['Preço Corrigido (USD)'].apply(classificar_por_faixa)
+
+        # Agrupar média de bateria por ano e faixa
+        media_bateria = df.groupby(["Ano", "Faixa"])["Bateria (mAh)"].mean().reset_index()
+
+        fig = px.line(media_bateria, x="Ano", y="Bateria (mAh)", color="Faixa", markers=True,
+                      title="Evolução da Capacidade Média de Bateria por Faixa de Preço")
+        fig.update_traces(line=dict(width=3))
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("""
+        ### 📌 Observações:
+        - Modelos **High-End** costumam ter baterias maiores, mas o avanço também aparece nas faixas intermediárias.
+        - A faixa **Mid-Range** teve uma melhora visível nos últimos anos.
+        - A faixa **Low-End** ainda é limitada, mas com crescimento gradual.
+        """)
+    except Exception as e:
+        st.error(f"Erro ao carregar os dados: {e}")
+
+# =========================
+# 🔍 CLUSTERIZAÇÃO
+# =========================
+elif menu == "Clusterização":
+    st.title("🔍 Análise e Clusterização de Smartphones")
+    st.info("💡 Esta seção utiliza os mesmos dados do banco principal do PhoneDex (sem necessidade de upload).")
+
+    try:
+        EXCEL_FILE = "datasets/pisi3basededados.xlsx" # garante que a variável exista
+        cotacao_dolar = 5.68
+
+        df = pd.read_excel(EXCEL_FILE)
+        df.columns = df.columns.str.strip()
+
+        df["Preço (USD)"] = (
+            df["Launched Price (USA)"]
+            .astype(str)
+            .str.replace("USD", "", regex=False)
+            .str.replace(",", "", regex=False)
+            .astype(float)
+        )
+        df["Preço (R$)"] = df["Preço (USD)"] * cotacao_dolar
+        df["Ano"] = df["Launched Year"]
+        df["Marca"] = df["Company Name"]
+        df["Sistema Operacional"] = df["Sistema Operacional"].astype(str).str.strip()
+        df["Sistema Operacional (Binário)"] = np.where(
+            df["Sistema Operacional"].str.lower().str.contains("android"), 0, 1
+        ).astype(int)
+
+        st.subheader("📈 Distribuição dos Preços em R$")
+        fig, ax = plt.subplots(figsize=(10, 5))
+        sns.histplot(df["Preço (R$)"], bins=30, kde=True, ax=ax)
+        ax.set_title("Distribuição de Preços em Reais")
+        st.pyplot(fig)
+
+        st.subheader("📋 Amostra dos Dados")
+        st.dataframe(df[[
+            'Model Name', 'Marca', 'Preço (R$)', 'Ano', 'Sistema Operacional'
+        ]].head())
+
+        st.markdown("🚧 *Análises de clusterização serão adicionadas em breve com agrupamentos automáticos por características.*")
+
+    except Exception as e:
+        st.error(f"Erro ao carregar os dados: {e}")
+
+
