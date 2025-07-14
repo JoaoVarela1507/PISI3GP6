@@ -9,6 +9,9 @@ from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 from collections import Counter
 import shap
+from imblearn.over_sampling import RandomOverSampler, SMOTE
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.combine import SMOTEENN
 
 from Home import EXCEL_FILE
 from utils import dataframe_convert_columns
@@ -224,9 +227,7 @@ if EXCEL_FILE:
     # st.plotly_chart(fig, use_container_width=True)
 
     st.header("SMOTE para Balanceamento de Classes e Redução de Overfitting")
-    from imblearn.over_sampling import RandomOverSampler, SMOTE
-    from imblearn.under_sampling import RandomUnderSampler
-    from imblearn.combine import SMOTEENN
+
 
     samplers_analysis = {
         "Original": (X_train, y_train),
