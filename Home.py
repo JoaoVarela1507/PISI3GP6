@@ -16,14 +16,22 @@ def corrigir_inflacao(preco, ano_origem, ano_base=2024):
         return preco * fator_correcao
     return preco
 
-def classificar_por_faixa(preco_corrigido):
-    """Classifica smartphones por faixa de preço"""
-    if preco_corrigido <= 300:
+def classificar_por_faixareal(preco_corrigido):
+    if preco_corrigido <= 1500:
         return "Low-End"
-    elif preco_corrigido <= 700:
+    elif preco_corrigido <= 3000:
         return "Mid-Range"
     else:
         return "High-End"
+    
+def classificar_por_faixa(preco_usd_corrigido):
+    if preco_usd_corrigido <= 300:
+        return "Low-End"
+    elif preco_usd_corrigido <= 700:
+        return "Mid-Range"
+    else:
+        return "High-End"
+
 
 # Configuração da página
 st.set_page_config(page_title="PhoneDex", layout="wide")
