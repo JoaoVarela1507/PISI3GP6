@@ -125,7 +125,7 @@ if EXCEL_FILE:
 
     # Escolha do modelo
     model_option = st.selectbox("Escolha o modelo de classificação:",
-        ["RandomForest", "GradientBoosting", "XGBoost"])
+        ["RandomForest", "GradientBoosting"])
     
     if model_option != "XGBoost":
         col1, col2, col3 = st.columns(3)
@@ -341,11 +341,11 @@ if EXCEL_FILE:
         elif overfitting_gap >= 0:
             st.success(f"✅ O modelo apresenta um gap de overfitting muito baixo ({overfitting_gap:.3f}).")
         elif overfitting_gap > -0.03:
-            st.success(f"⚠️ O modelo apresenta um gap de underfitting muito baixo ({overfitting_gap:.3f}).")
+            st.success(f"⚠️ O modelo apresenta um gap de underfitting muito baixo ({abs(overfitting_gap):.3f}).")
         elif overfitting_gap > -0.05:
-            st.warning(f"⚠️ O modelo apresenta um gap de underfitting significativo ({overfitting_gap:.3f}).")
+            st.warning(f"⚠️ O modelo apresenta um gap de underfitting significativo ({abs(overfitting_gap):.3f}).")
         else:
-            st.error(f"⚠️ O modelo apresenta um gap de underfitting muito alto ({overfitting_gap:.3f}).")
+            st.error(f"⚠️ O modelo apresenta um gap de underfitting muito alto ({abs(overfitting_gap):.3f}).")
 
     st.subheader("Comparativo entre os balanceamentos")
     # Criar DataFrame comparativo
@@ -408,21 +408,22 @@ if EXCEL_FILE:
     plt.close(fig)
     plt.clf()
 
-    st.subheader("Análise de Importância de Features com SHAP")
-    # Inicialização do SHAP
-    shap.initjs()
+    if model_option == "RandomForest":
+        st.subheader("Análise de Importância de Features com SHAP")
+        # Inicialização do SHAP
+        shap.initjs()
 
-    # Explicador SHAP
-    explainer = shap.TreeExplainer(model)
+        # Explicador SHAP
+        explainer = shap.TreeExplainer(model)
 
-    X_shap = pd.DataFrame(X_test, columns=X.columns)
-    X_shap.head()
+        X_shap = pd.DataFrame(X_test, columns=X.columns)
+        X_shap.head()
 
-    shap_values = explainer.shap_values(X_shap)
+        shap_values = explainer.shap_values(X_shap)
 
-    shap.summary_plot(shap_values, X_shap)
-    fig = plt.gcf()
-    st.plotly_chart(fig)
+        shap.summary_plot(shap_values, X_shap)
+        fig = plt.gcf()
+        st.plotly_chart(fig)
 
     st.subheader("Exportar modelos treinados para pickle")
     
